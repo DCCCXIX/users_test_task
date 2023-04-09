@@ -32,9 +32,10 @@ def generate_user_id(users):
 def validate_user_data(user):
     """User data validation"""
     try:
-        if "name" in user: assert isinstance(user.get("name"), str) and len(user.get("name")) < 50
-        if "age" in user: assert isinstance(user.get("age"), int) and user.get("age") > 0
-        if "city" in user: assert isinstance(user.get("city"), str) and len(user.get("city")) < 50
+        if 'id' in user: assert isinstance(user.get('id'), int) and user.get('id') > 0 # ids start with 1
+        if 'name' in user: assert isinstance(user.get('name'), str) and len(user.get('name')) < 50
+        if 'age' in user: assert isinstance(user.get('age'), int) and user.get('age') > 0 and user.get('age') < 150
+        if 'city' in user: assert isinstance(user.get('city'), str) and len(user.get('city')) < 50
     except AssertionError:
         return False    
     return True
@@ -57,8 +58,7 @@ def get_users():
 @app.route('/users', methods=['POST'])
 def add_user():
     """Adds a user to the existing table"""    
-    user = request.get_json()
-    
+    user = request.get_json()    
     if not validate_user_data(user):
         return {'error': 'Invalid user data'}, 400
     users = read_csv_file()    
@@ -66,6 +66,25 @@ def add_user():
     users.append(user)
     write_csv_file(users)
     return {'user': user}, 201
+
+@app.route('/users/<int:user_id>', methods=['DELETE'])
+def delete_user(user_id):
+    """Deletes a user from the existing table by id"""
+    users = read_csv_file()
+    if not validate_user_data(user):
+        return {'error': 'Invalid user data'}, 400    
+    index = None
+    for i, user in enumerate(users):
+        if user['id'] == user_id:
+            index = i
+            break
+
+    if index is not None:
+        removed_user = users.pop(index)
+        write_csv_file(users)
+        return {'user': removed_user}, 200
+    else:
+        return {'error': 'User not found'}, 404
 
 @app.route('/users/<int:user_id>', methods=['PUT'])
 def change_user(user_id):
@@ -76,7 +95,7 @@ def change_user(user_id):
     users = read_csv_file()
     updated_user = next((u for u in users if int(u['id']) == user_id), None)
     if updated_user:
-        updated_user.update({key: value for key, value in user.items() if key in updated_user})
+        updated_user.update({key: '' for key in user.items() if key in updated_user})
         write_csv_file(users)        
         return {'user': updated_user}, 201
     else:
