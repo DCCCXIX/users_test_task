@@ -11,6 +11,7 @@ The table contains mock user info for name, age, place of residence, and a uniqu
 - Modify existing user's data
 
 ### Testing
+___
 In order to run tests, do:
 ```
 cd users_test_task
