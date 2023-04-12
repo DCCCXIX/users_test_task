@@ -10,6 +10,13 @@ The table contains mock user info for name, age, place of residence, and a uniqu
 - Add a new user to the table
 - Modify existing user's data
 
+### Testing
+In order to run tests, do:
+```
+cd users_test_task
+python tests.py
+```
+
 ### Launch locally:
 ___
 ```sh
